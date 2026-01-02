@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DayControl - Task Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            min-height: 600px;
+            animation: slideInUp 0.6s ease;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            animation: slideInUp 0.6s ease 0.1s backwards;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px 20px;
+            max-height: 65vh;
+            overflow-y: auto;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .auth-screen {
+            display: block;
+            animation: slideInUp 0.6s ease;
+        }
+
+        .auth-screen.hidden {
+            display: none;
+        }
+
+        .task-screen {
+            display: none;
+        }
+
+        .task-screen.active {
+            display: block;
+            animation: slideInUp 0.6s ease;
+        }
+
+        .auth-section h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 20px;
+            animation: slideInUp 0.6s ease 0.2s backwards;
+        }
+
+        .auth-section p {
+            color: #999;
+            margin-bottom: 25px;
+            font-size: 14px;
+            animation: slideInUp 0.6s ease 0.3s backwards;
+        }
+
+        .auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            animation: slideInUp 0.6s ease 0.4s backwards;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-google {
+            background: white;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-google:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn-skip {
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+        }
+
+        .btn-skip:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+            animation: slideInUp 0.6s ease 0.1s backwards;
+        }
+
+        .task-header h2 {
+            font-size: 24px;
+            color: #333;
+            flex: 1;
+        }
+
+        .logout-btn {
+            padding: 8px 14px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .user-info {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+            animation: slideInUp 0.6s ease 0.2s backwards;
+        }
+
+        .task-input-section {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+            transition: all 0.3s ease;
+            animation: slideInUp 0.6s ease 0.3s backwards;
+        }
+
+        .task-input-section:hover {
+            border-top-color: #667eea;
+            background: rgba(102, 126, 234, 0.02);
+            border-radius: 8px;
+            padding: 15px;
+            margin-left: -20px;
+            margin-right: -20px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .task-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .task-input input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .task-input button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .task-input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .task-input button:active {
+            transform: translateY(0px);
+        }
+
+        .task-input button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .task-list {
+            list-style: none;
+            animation: slideInUp 0.6s ease 0.2s backwards;
+        }
+
+        .task-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+            cursor: grab;
+            animation: slideInUp 0.4s ease;
+        }
+
+        .task-item:active {
+            cursor: grabbing;
+            opacity: 0.8;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .task-item:hover {
+            background: #f0f0f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: translateX(4px);
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+            background: #f0f0f0;
+            border-left-color: #4CAF50;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-item.deleting {
+            animation: slideOut 0.3s ease forwards;
+        }
+
+        .task-text {
+            flex: 1;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .task-delete {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .task-delete:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .task-drag {
+            color: #ccc;
+            font-size: 16px;
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+
+        .task-item:hover .task-drag {
+            color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            animation: slideInUp 0.6s ease;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            animation: bounce 2s ease infinite;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .task-count {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .task-count.full {
+            background: #ff6b6b;
+            animation: shake 0.3s ease;
+        }
+
+        .drag-over {
+            background: rgba(102, 126, 234, 0.05) !important;
+            border-left-color: #667eea !important;
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            animation: slideInUp 0.6s ease 0.15s backwards;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #999;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: slideInUp 0.4s ease;
+        }
+
+        .completed-list {
+            list-style: none;
+        }
+
+        .completed-item {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #4CAF50;
+            animation: slideInUp 0.4s ease;
+        }
+
+        .completed-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .completed-text {
+            flex: 1;
+            color: #999;
+            font-size: 14px;
+            text-decoration: line-through;
+            line-height: 1.5;
+        }
+
+        .completed-time {
+            font-size: 12px;
+            color: #bbb;
+        }
+
+        .clear-completed {
+            padding: 8px 14px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .clear-completed:hover {
+            background: #ff5252;
+        }
+
+        .completed-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="authScreen" class="auth-screen">
+            <div class="header">
+                <h1>🎯 DayControl</h1>
+                <p>Dopamine Detox • Stay Focused</p>
+            </div>
+            <div class="content">
+                <div class="auth-section">
+                    <h2>Reclaim Your Focus</h2>
+                    <p>Minimize distractions. Complete today's priorities. No dopamine hacks.</p>
+                    <div class="auth-buttons">
+                        <button class="btn btn-skip" onclick="skipLogin()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-weight: 700;">
+                            <span>🚀</span> Start Now - No Login Required
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Screen -->
+        <div id="taskScreen" class="task-screen">
+            <div class="header">
+                <h1>🎯 DayControl</h1>
+                <p id="greeting">Stay focused. Minimize distractions.</p>
+            </div>
+            <div class="content">
+                <div class="task-header">
+                    <h2>Today's Focus <span class="task-count" id="taskCount">0/5</span></h2>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+
+                <div id="userInfo" class="user-info" style="display: none;">
+                    <span id="userEmail">User</span>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="tab-navigation">
+                    <button class="tab-btn active" onclick="showTab('today')">🎯 Today</button>
+                    <button class="tab-btn" onclick="showTab('pending')">⏳ Pending</button>
+                    <button class="tab-btn" onclick="showTab('completed')">✅ Completed</button>
+                    <button class="tab-btn" onclick="showTab('deleted')">🗑️ Deleted</button>
+                </div>
+
+                <!-- Today Tab -->
+                <div id="today-tab" class="tab-content active">
+                    <div id="emptyState" class="empty-state">
+                        <div class="empty-state-icon">🎯</div>
+                        <p>What's your focus for today?</p>
+                        <p style="font-size: 13px; color: #bbb; margin-top: 10px;">Add up to 5 priorities below</p>
+                    </div>
+                    <ul id="taskList" class="task-list"></ul>
+
+                    <div class="task-input-section">
+                        <div class="task-input">
+                            <input 
+                                type="text" 
+                                id="taskInput" 
+                                placeholder="Add a priority..." 
+                                maxlength="100"
+                                onkeypress="if(event.key==='Enter') addTask()"
+                            >
+                            <select id="prioritySelect" style="padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; width: 100px;">
+                                <option value="low">Low 📌</option>
+                                <option value="medium" selected>Med 🟡</option>
+                                <option value="high">High 🔴</option>
+                            </select>
+                            <button onclick="addTask()" id="addBtn">➕ Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Tab -->
+                <div id="pending-tab" class="tab-content">
+                    <div id="pendingEmptyState" class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 15px;">⏳</div>
+                        <p>No pending tasks yet</p>
+                        <p style="font-size: 13px; color: #bbb; margin-top: 10px;">Move incomplete tasks here for later</p>
+                    </div>
+                    <ul id="pendingList" class="task-list"></ul>
+                    <button class="clear-completed" onclick="clearPending()" id="clearPendingBtn" style="display: none;">🗑️ Clear Pending</button>
+                </div>
+
+                <!-- Completed Tab -->
+                <div id="completed-tab" class="tab-content">
+                    <div id="completedEmptyState" class="completed-empty">
+                        <div style="font-size: 48px; margin-bottom: 15px;">🎉</div>
+                        <p>No wins yet today!</p>
+                        <p style="font-size: 13px; color: #bbb; margin-top: 10px;">Complete tasks to celebrate progress</p>
+                    </div>
+                    <ul id="completedList" class="completed-list"></ul>
+                    <button class="clear-completed" onclick="clearCompleted()" id="clearBtn" style="display: none;">🗑️ Clear Completed</button>
+                </div>
+
+                <!-- Deleted Tab -->
+                <div id="deleted-tab" class="tab-content">
+                    <div id="deletedEmptyState" class="completed-empty">
+                        <div style="font-size: 48px; margin-bottom: 15px;">📋</div>
+                        <p>Deletion history is empty</p>
+                        <p style="font-size: 13px; color: #bbb; margin-top: 10px;">Deleted tasks appear here for 30 days</p>
+                    </div>
+                    <ul id="deletedList" class="completed-list"></ul>
+                    <button class="clear-completed" onclick="clearDeletedHistory()" id="clearDeletedBtn" style="display: none;">🗑️ Clear History</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentUser = null;
+        let tasks = [];
+        let pendingTasks = [];
+        let deletedTasks = [];
+
+        // Initialize app
+        function init() {
+            const savedUser = localStorage.getItem('daycontrol_user');
+            const logoutFlag = localStorage.getItem('daycontrol_logged_out');
+            const savedTasks = localStorage.getItem('daycontrol_tasks');
+            const savedPendingTasks = localStorage.getItem('daycontrol_pending_tasks');
+            const savedDeletedTasks = localStorage.getItem('daycontrol_deleted_tasks');
+            const lastDateStr = localStorage.getItem('daycontrol_last_date');
+            const today = new Date().toDateString();
+            
+            // If user explicitly logged out, show auth screen
+            if (logoutFlag === 'true') {
+                localStorage.removeItem('daycontrol_logged_out');
+                showAuthScreen();
+            } else if (savedUser) {
+                // If user exists and not logged out, show tasks
+                currentUser = JSON.parse(savedUser);
+                tasks = savedTasks ? JSON.parse(savedTasks) : [];
+                pendingTasks = savedPendingTasks ? JSON.parse(savedPendingTasks) : [];
+                deletedTasks = savedDeletedTasks ? JSON.parse(savedDeletedTasks) : [];
+                
+                // Check if it's a new day - if so, carry forward incomplete tasks
+                if (lastDateStr !== today) {
+                    carryForwardIncompleteTasks();
+                    localStorage.setItem('daycontrol_last_date', today);
+                }
+                
+                showTaskScreen();
+            } else {
+                // No user, show login
+                showAuthScreen();
+            }
+        }
+
+        // Carry forward incomplete tasks from yesterday
+        function carryForwardIncompleteTasks() {
+            const incompleteTasks = tasks.filter(t => !t.completed);
+            
+            if (incompleteTasks.length > 0) {
+                // Mark incomplete tasks as carried over from yesterday
+                incompleteTasks.forEach(task => {
+                    task.carriedOverFrom = task.created || new Date().toISOString();
+                    task.isCarryover = true;
+                });
+                
+                saveTasks();
+            }
+        }
+
+        // Show auth screen
+        function showAuthScreen() {
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('taskScreen').classList.remove('active');
+        }
+
+        // Show task screen
+        function showTaskScreen() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('taskScreen').classList.add('active');
+            updateUserInfo();
+            updateGreeting();
+            renderTasks();
+        }
+
+        // Login with Google
+        // Skip login - Start as Guest
+        function skipLogin() {
+            const timestamp = new Date().toLocaleTimeString();
+            currentUser = {
+                id: 'guest-' + Date.now(),
+                email: 'Guest User',
+                name: 'Guest',
+                provider: 'Guest',
+                loginTime: timestamp
+            };
+            localStorage.setItem('daycontrol_user', JSON.stringify(currentUser));
+            localStorage.removeItem('daycontrol_logged_out');
+            tasks = [];
+            deletedTasks = [];
+            localStorage.setItem('daycontrol_tasks', JSON.stringify(tasks));
+            localStorage.setItem('daycontrol_deleted_tasks', JSON.stringify(deletedTasks));
+            showTaskScreen();
+        }
+
+        // Update user info
+        function updateUserInfo() {
+            if (currentUser) {
+                const providerEmoji = currentUser.provider === 'Google' ? '🔵' : '👤';
+                const displayText = `${providerEmoji} ${currentUser.name} (${currentUser.provider})`;
+                document.getElementById('userEmail').textContent = displayText;
+                document.getElementById('userInfo').style.display = 'block';
+            }
+        }
+
+        // Update greeting based on time
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = '';
+            
+            if (hour < 12) {
+                greeting = 'Good Morning! ☀️';
+            } else if (hour < 18) {
+                greeting = 'Good Afternoon! 🌤️';
+            } else {
+                greeting = 'Good Evening! 🌙';
+            }
+            
+            document.getElementById('greeting').textContent = greeting;
+        }
+
+        // Add task
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const prioritySelect = document.getElementById('prioritySelect');
+            const text = input.value.trim();
+            const priority = prioritySelect.value;
+
+            if (!text) {
+                alert('Please enter a task!');
+                return;
+            }
+
+            if (tasks.length >= 5) {
+                alert('⚠️ You can add a maximum of 5 tasks per day!');
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                text: text,
+                priority: priority,
+                completed: false,
+                created: new Date().toISOString()
+            };
+
+            tasks.push(task);
+            saveTasks();
+            input.value = '';
+            input.focus();
+            renderTasks();
+        }
+
+        // Toggle task
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        // Save tasks
+        function saveTasks() {
+            localStorage.setItem('daycontrol_tasks', JSON.stringify(tasks));
+            localStorage.setItem('daycontrol_pending_tasks', JSON.stringify(pendingTasks));
+            localStorage.setItem('daycontrol_deleted_tasks', JSON.stringify(deletedTasks));
+        }
+
+        // Render tasks
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            const emptyState = document.getElementById('emptyState');
+            const taskCount = document.getElementById('taskCount');
+            const addBtn = document.getElementById('addBtn');
+
+            // Update task count
+            taskCount.textContent = `${tasks.length}/5`;
+            if (tasks.length >= 5) {
+                taskCount.classList.add('full');
+                addBtn.disabled = true;
+            } else {
+                taskCount.classList.remove('full');
+                addBtn.disabled = false;
+            }
+
+            taskList.innerHTML = '';
+
+            if (tasks.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                li.draggable = true;
+                li.setAttribute('data-id', task.id);
+                li.setAttribute('data-index', index);
+                
+                // Priority icon and color
+                let priorityIcon = '📌';
+                let priorityColor = '#999';
+                if (task.priority === 'high') {
+                    priorityIcon = '🔴';
+                    priorityColor = '#ff6b6b';
+                } else if (task.priority === 'medium') {
+                    priorityIcon = '🟡';
+                    priorityColor = '#ffa500';
+                }
+                
+                // Show carryover indicator if task is from yesterday
+                const carryoverLabel = task.isCarryover ? '<span style="font-size: 10px; color: #ffa500; font-weight: bold; margin-left: 4px; padding: 2px 6px; background: rgba(255, 165, 0, 0.2); border-radius: 4px;">📅 FROM YESTERDAY</span>' : '';
+                
+                li.innerHTML = `
+                    <span class="task-drag">≡</span>
+                    <input 
+                        type="checkbox" 
+                        ${task.completed ? 'checked' : ''} 
+                        onchange="toggleTask(${task.id})"
+                    >
+                    <span style="font-size: 12px; font-weight: 600; color: ${priorityColor}; min-width: 20px;" title="${task.priority} priority">${priorityIcon}</span>
+                    <span class="task-text">${escapeHtml(task.text)}</span>
+                    ${carryoverLabel}
+                    <div class="task-actions">
+                        <button class="task-delete" onclick="event.stopPropagation(); moveToPending(${task.id})" title="Move to Pending">⏳</button>
+                        <button class="task-delete" onclick="event.stopPropagation(); deleteTaskWithConfirm(${task.id})">🗑️ Delete</button>
+                    </div>
+                `;
+                
+                // Add drag listeners
+                li.addEventListener('dragstart', handleDragStart);
+                li.addEventListener('dragend', handleDragEnd);
+                li.addEventListener('dragover', handleDragOver);
+                li.addEventListener('drop', handleDrop);
+                li.addEventListener('dragleave', handleDragLeave);
+                
+                taskList.appendChild(li);
+            });
+        }
+
+        let draggedItem = null;
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            this.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            this.style.opacity = '1';
+            document.querySelectorAll('.task-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            
+            if (this !== draggedItem) {
+                this.classList.add('drag-over');
+            }
+            return false;
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+
+            if (draggedItem !== this) {
+                const fromIndex = parseInt(draggedItem.getAttribute('data-index'));
+                const toIndex = parseInt(this.getAttribute('data-index'));
+
+                // Swap tasks
+                const temp = tasks[fromIndex];
+                tasks[fromIndex] = tasks[toIndex];
+                tasks[toIndex] = temp;
+
+                saveTasks();
+                renderTasks();
+            }
+
+            this.classList.remove('drag-over');
+            return false;
+        }
+
+        // Delete task
+        function deleteTask(id) {
+            console.log('Deleting task:', id);
+            const taskIndex = tasks.findIndex(t => t.id === id);
+            if (taskIndex !== -1) {
+                const deletedTask = tasks[taskIndex];
+                deletedTask.deletedAt = new Date().toISOString();
+                deletedTasks.push(deletedTask);
+                tasks.splice(taskIndex, 1);
+                saveTasks();
+                renderTasks();
+                renderDeletedTasks();
+            }
+        }
+
+        // Delete with confirmation
+        function deleteTaskWithConfirm(id) {
+            console.log('Delete confirm triggered for:', id);
+            const task = tasks.find(t => t.id === id);
+            console.log('Found task:', task);
+            if (task) {
+                const message = `Delete task: "${task.text}"?`;
+                console.log('Showing confirm:', message);
+                if (confirm(message)) {
+                    deleteTask(id);
+                }
+            } else {
+                alert('Task not found!');
+            }
+        }
+
+        // Show tab
+        function showTab(tabName) {
+            // Hide all tabs
+            document.getElementById('today-tab').classList.remove('active');
+            document.getElementById('pending-tab').classList.remove('active');
+            document.getElementById('completed-tab').classList.remove('active');
+            document.getElementById('deleted-tab').classList.remove('active');
+
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            if (tabName === 'today') {
+                document.getElementById('today-tab').classList.add('active');
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            } else if (tabName === 'pending') {
+                document.getElementById('pending-tab').classList.add('active');
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                renderPendingTasks();
+            } else if (tabName === 'completed') {
+                document.getElementById('completed-tab').classList.add('active');
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
+                renderCompletedTasks();
+            } else if (tabName === 'deleted') {
+                document.getElementById('deleted-tab').classList.add('active');
+                document.querySelectorAll('.tab-btn')[3].classList.add('active');
+                renderDeletedTasks();
+            }
+        }
+
+        // Render completed tasks
+        function renderCompletedTasks() {
+            const completedList = document.getElementById('completedList');
+            const completedEmpty = document.getElementById('completedEmptyState');
+            const clearBtn = document.getElementById('clearBtn');
+
+            const completedTasks = tasks.filter(t => t.completed);
+            completedList.innerHTML = '';
+
+            if (completedTasks.length === 0) {
+                completedEmpty.style.display = 'block';
+                clearBtn.style.display = 'none';
+                return;
+            }
+
+            completedEmpty.style.display = 'none';
+            clearBtn.style.display = 'block';
+
+            completedTasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'completed-item';
+                li.innerHTML = `
+                    <span>✅</span>
+                    <span class="completed-text">${escapeHtml(task.text)}</span>
+                    <button class="task-delete" onclick="event.stopPropagation(); deleteTaskWithConfirm(${task.id})">🗑️</button>
+                `;
+                completedList.appendChild(li);
+            });
+        }
+
+        // Clear all completed tasks
+        function clearCompleted() {
+            const completedCount = tasks.filter(t => t.completed).length;
+            if (completedCount === 0) {
+                alert('No completed tasks to clear!');
+                return;
+            }
+
+            if (confirm(`Clear ${completedCount} completed task(s)?`)) {
+                tasks = tasks.filter(t => !t.completed);
+                saveTasks();
+                renderTasks();
+                renderCompletedTasks();
+            }
+        }
+
+        // Render pending tasks
+        function renderPendingTasks() {
+            const pendingList = document.getElementById('pendingList');
+            const pendingEmpty = document.getElementById('pendingEmptyState');
+            const clearPendingBtn = document.getElementById('clearPendingBtn');
+
+            pendingList.innerHTML = '';
+
+            if (pendingTasks.length === 0) {
+                pendingEmpty.style.display = 'block';
+                clearPendingBtn.style.display = 'none';
+                return;
+            }
+
+            pendingEmpty.style.display = 'none';
+            clearPendingBtn.style.display = 'block';
+
+            pendingTasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = `task-item`;
+                li.draggable = true;
+                li.setAttribute('data-id', task.id);
+                li.setAttribute('data-index', index);
+                
+                // Priority icon and color
+                let priorityIcon = '📌';
+                let priorityColor = '#999';
+                if (task.priority === 'high') {
+                    priorityIcon = '🔴';
+                    priorityColor = '#ff6b6b';
+                } else if (task.priority === 'medium') {
+                    priorityIcon = '🟡';
+                    priorityColor = '#ffa500';
+                }
+                
+                li.innerHTML = `
+                    <span class="task-drag">≡</span>
+                    <button class="task-action-btn" onclick="event.stopPropagation(); moveToToday(${task.id})" title="Move to Today" style="background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px;">📌</button>
+                    <span style="font-size: 12px; font-weight: 600; color: ${priorityColor}; min-width: 20px;" title="${task.priority} priority">${priorityIcon}</span>
+                    <span class="task-text">${escapeHtml(task.text)}</span>
+                    <div class="task-actions">
+                        <button class="task-delete" onclick="event.stopPropagation(); deleteTaskWithConfirm(${task.id})">🗑️ Delete</button>
+                    </div>
+                `;
+                
+                pendingList.appendChild(li);
+            });
+        }
+
+        // Move task from pending to today
+        function moveToToday(taskId) {
+            const task = pendingTasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            if (tasks.length >= 5) {
+                alert('⚠️ You can add a maximum of 5 tasks per day!');
+                return;
+            }
+
+            pendingTasks = pendingTasks.filter(t => t.id !== taskId);
+            task.isCarryover = false;
+            task.carriedOverFrom = null;
+            tasks.push(task);
+            saveTasks();
+            renderPendingTasks();
+            renderTasks();
+        }
+
+        // Move task from today to pending
+        function moveToPending(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            tasks = tasks.filter(t => t.id !== taskId);
+            task.movedToPendingAt = new Date().toISOString();
+            pendingTasks.push(task);
+            saveTasks();
+            renderTasks();
+            renderPendingTasks();
+        }
+
+        // Clear all pending tasks
+        function clearPending() {
+            if (pendingTasks.length === 0) {
+                alert('No pending tasks to clear!');
+                return;
+            }
+
+            if (confirm(`Clear ${pendingTasks.length} pending task(s)?`)) {
+                pendingTasks = [];
+                saveTasks();
+                renderPendingTasks();
+            }
+        }
+
+        // Render deleted tasks
+        function renderDeletedTasks() {
+            const deletedList = document.getElementById('deletedList');
+            const deletedEmpty = document.getElementById('deletedEmptyState');
+            const clearDeletedBtn = document.getElementById('clearDeletedBtn');
+
+            // Clean up tasks older than 30 days
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            deletedTasks = deletedTasks.filter(t => new Date(t.deletedAt) > thirtyDaysAgo);
+            saveTasks();
+
+            deletedList.innerHTML = '';
+
+            if (deletedTasks.length === 0) {
+                deletedEmpty.style.display = 'block';
+                clearDeletedBtn.style.display = 'none';
+                return;
+            }
+
+            deletedEmpty.style.display = 'none';
+            clearDeletedBtn.style.display = 'block';
+
+            deletedTasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'completed-item';
+                const deletedDate = new Date(task.deletedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                li.innerHTML = `
+                    <span>🗑️</span>
+                    <div style="flex: 1;">
+                        <span class="completed-text">${escapeHtml(task.text)}</span>
+                        <div style="font-size: 12px; color: #bbb; margin-top: 4px;">Deleted: ${deletedDate}</div>
+                    </div>
+                    <span style="font-size: 12px; color: ${task.priority === 'high' ? '#ff6b6b' : task.priority === 'medium' ? '#ffa500' : '#999'}; font-weight: 600;">
+                        ${task.priority === 'high' ? '🔴' : task.priority === 'medium' ? '🟡' : '📌'} ${task.priority}
+                    </span>
+                `;
+                deletedList.appendChild(li);
+            });
+        }
+
+        // Clear deleted history
+        function clearDeletedHistory() {
+            if (deletedTasks.length === 0) {
+                alert('No deleted tasks to clear!');
+                return;
+            }
+
+            if (confirm(`Permanently clear ${deletedTasks.length} deleted task(s)? This cannot be undone.`)) {
+                deletedTasks = [];
+                saveTasks();
+                renderDeletedTasks();
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                currentUser = null;
+                tasks = [];
+                
+                // Clear all data
+                localStorage.removeItem('daycontrol_user');
+                localStorage.removeItem('daycontrol_tasks');
+                
+                // Set logout flag to prevent auto-login
+                localStorage.setItem('daycontrol_logged_out', 'true');
+                
+                document.getElementById('taskInput').value = '';
+                showAuthScreen();
+            }
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
