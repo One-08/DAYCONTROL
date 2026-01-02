@@ -41,6 +41,11 @@
       "ios",
       "android",
       "web"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "93d3159a-8bda-429f-b0b9-a25c43c937d0"
+      }
+    }
   }
 }
