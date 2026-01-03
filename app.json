@@ -3,45 +3,11 @@
     "name": "DayControl",
     "slug": "daycontrol-dopamine-detox",
     "version": "1.0.0",
-    "scheme": "daycontrol",
-    "description": "DayControl - Dopamine Detox Edition. Stay focused on today's priorities without distractions.",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTabletMode": true,
-      "bundleIdentifier": "com.daycontrol.app",
-      "build": {
-        "developmentClient": true
-      }
-    },
+    "sdkVersion": "54.0.0",
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
       "package": "com.daycontrol.app",
       "versionCode": 1
     },
-    "web": {
-      "display": "standalone",
-      "backgroundColor": "#ffffff"
-    },
-    "plugins": [
-      "expo-apple-authentication",
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/notification-icon.png",
-          "color": "#FF6B6B"
-        }
-      ]
-    ],
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
     "extra": {
       "eas": {
         "projectId": "93d3159a-8bda-429f-b0b9-a25c43c937d0"
